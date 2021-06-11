@@ -15,7 +15,6 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
-from posts.permissions import IsOwnerOrReadOnly, IsOwner
 from .serializers import UserSerializer
 
 # Create your views here.
@@ -41,7 +40,7 @@ class UserListAPIView(ListAPIView):
     """
 
     queryset = User.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = UserSerializer
 
 
@@ -61,7 +60,7 @@ class UserDetailAPIView(RetrieveUpdateDestroyAPIView):
         parameters: [id]
     """
 
-    permission_classes = [IsAuthenticatedOrReadOnly, IsOwner]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'id'
