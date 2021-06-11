@@ -60,6 +60,7 @@ class PostListSerializer(serializers.ModelSerializer):
             "author",
             "description",
             "comments",
+            "slug",
         ]
 
     def get_comments(self, obj):
@@ -69,3 +70,57 @@ class PostListSerializer(serializers.ModelSerializer):
     def get_url(self, obj):
         return obj.get_api_url()
 
+
+class PostDetailSerializer(serializers.ModelSerializer):
+    # slug = serializers.SerializerMethodField(read_only=True)
+    author = serializers.PrimaryKeyRelatedField(read_only=True)
+    comments = serializers.SerializerMethodField(read_only=True)
+
+    def get_comments(self, obj):
+        qs = Comment.objects.filter(parent=obj)
+        try:
+            serializer = CommentSerializer(qs, many=True)
+        except Exception as e:
+            print(e)
+        return serializer.data
+
+    class Meta:
+        model = Post
+        fields = [
+            "id",
+            "slug",
+            "title",
+            "description",
+            "body",
+            "author",
+            "created_at",
+            "updated_at",
+            "comments",
+        ]
+        extra_kwargs = {
+            "slug": {"read_only": True},
+        }
+
+        # def get_slug(self, obj):
+        #     return obj.slug
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = [
+            "id",
+            "parent",
+            "author",
+            "body",
+            "created_at",
+            "updated_at",
+        ]
+
+
+class CommentCreateUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = [
+            "body",
+        ]
